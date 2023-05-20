@@ -24,25 +24,57 @@ func main() {
 	defer conn.Close()
 
 	// 创建一个新的 MonitorService 客户端
-	c := pb.NewMonitorServiceClient(conn)
 
 	// 准备请求数据
-	hostInfo := monitor.GetHost(context.TODO())
 
-	client, err := c.ReportHostInfoStream(context.Background())
 	if err != nil {
 		log.Fatalln(err)
 	}
 	log.Println(time.Now())
-	t := time.Tick(time.Second)
-	for i := range t {
-		log.Println(i, time.Now())
 
+	go ReportHostInfo(conn)
+
+	go ReportMinitorInfo(conn)
+
+	select {}
+
+}
+
+func ReportHostInfo(conn *grpc.ClientConn) {
+	c := pb.NewHostServiceClient(conn)
+	clientInfo, err := c.ReportHostInfoStream(context.Background())
+	if err != nil {
+		log.Fatalln("init ReportHostInfoStream failed")
+	}
+	t := time.Tick(time.Minute)
+	for i := range t {
+		hostInfo := monitor.GetHost(context.TODO())
+		log.Println(i, time.Now())
 		// 调用 Report 方法
-		err := client.Send(hostInfo)
+		err := clientInfo.Send(hostInfo)
 		if err != nil {
 			log.Printf("could not report: %v", err)
-			time.Sleep(time.Second * 10)
+			time.Sleep(time.Minute * 10)
+		}
+	}
+}
+
+func ReportMinitorInfo(conn *grpc.ClientConn) {
+	interval := time.Second
+	c := pb.NewMonitorServiceClient(conn)
+	clientInfo, err := c.ReportMonitorStream(context.Background())
+	if err != nil {
+		log.Fatalln("init ReportHostInfoStream failed")
+	}
+	t := time.Tick(interval)
+	for i := range t {
+		info := monitor.GetMonitor(context.TODO())
+		log.Println(i, time.Now())
+		// 调用 Report 方法
+		err := clientInfo.Send(info)
+		if err != nil {
+			log.Printf("could not report: %v", err)
+			time.Sleep(interval * 10)
 		}
 	}
 

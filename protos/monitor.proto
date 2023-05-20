@@ -3,94 +3,33 @@ option go_package = "./pb_model";
 
 package protos;
 
-message SystemMetrics {
-  string hostname = 1;
+import "protos/base.proto";
+
+service MonitorService {
+  rpc ReportMonitor(MonitorTick)returns(protos.Receipt){}
+  rpc ReportMonitorStream(stream MonitorTick)returns(protos.Receipt){}
+}
+
+
+message MonitorTick {
+  string host_id = 1; // Host ID of the system
   int64 timestamp = 2;
-  CPUUsage cpu_usage = 3;
-  MemoryUsage memory_usage = 4;
-  DiskUsage disk_usage = 5;
-  NetworkUsage network_usage = 6;
-  SystemLoad system_load = 7;
-  ProcessCount process_count = 8;
-  LoginSessions login_sessions = 9;
-  SystemInfo system_info = 10;
-}
 
-message CPUUsage {
-  double system_cpu_load = 1;
-  double process_cpu_load = 2;
-  int32 number_of_cores = 3;
-  double load_average_1min = 4;
-  double load_average_5min = 5;
-  double load_average_15min = 6;
-}
+  double cpu_load = 10;
+  double cpu_load_system = 11;
+  double cpu_load_user = 12;
 
-message MemoryUsage {
-  uint64 total_physical_memory = 1;
-  uint64 free_physical_memory = 2;
-  uint64 total_virtual_memory = 3;
-  uint64 free_virtual_memory = 4;
-  uint64 total_swap_space = 5;
-  uint64 free_swap_space = 6;
-  uint64 cached_memory = 7;
-  uint64 buffer_memory = 8;
-}
+  uint64 mem_used = 21;
+  uint64 swap_used = 25;
 
-message DiskUsage {
-  repeated Disk disk = 1;
+  uint64 net_speed_snt = 30;
+  uint64 net_speed_rcv = 31;
+  uint64 net_total_snt = 32;
+  uint64 net_total_rcv = 33;
+  uint64 net_total_packets_snt = 34;
+  uint64 net_total_packets_rcv = 35;
 
-  message Disk {
-    string disk_name = 1;
-    uint64 total_space = 2;
-    uint64 free_space = 3;
-    uint64 usable_space = 4;
-    uint64 read_bytes = 5;
-    uint64 write_bytes = 6;
-    uint64 read_count = 7;
-    uint64 write_count = 8;
-  }
-}
-
-message NetworkUsage {
-  repeated Network network = 1;
-
-  message Network {
-    string interface_name = 1;
-    uint64 total_bytes_sent = 2;
-    uint64 total_bytes_received = 3;
-    uint64 total_packets_sent = 4;
-    uint64 total_packets_received = 5;
-  }
-}
-
-message SystemLoad {
-  double load_1min = 1;
-  double load_5min = 2;
-  double load_15min = 3;
-}
-
-message ProcessCount {
-  int32 total_processes = 1;
-  int32 running_processes = 2;
-  int32 sleeping_processes = 3;
-  int32 zombie_processes = 4;
-}
-
-message LoginSessions {
-  int32 active_sessions = 1;
-  repeated Session sessions = 2;
-
-  message Session {
-    string user = 1;
-    string tty = 2;
-    string host = 3;
-  }
-}
-
-message SystemInfo {
-  string os_name = 1;
-  string os_version = 2;
-  string kernel_version = 3;
-  string architecture = 4;
-  string timezone = 5;
+  double load1 = 41;
+  double load5 = 42;
+  double load15 = 43;
 }
