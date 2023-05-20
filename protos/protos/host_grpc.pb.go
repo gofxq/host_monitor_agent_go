@@ -19,59 +19,63 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	HostService_ReportHostInfo_FullMethodName       = "/protos.HostService/ReportHostInfo"
-	HostService_ReportHostInfoStream_FullMethodName = "/protos.HostService/ReportHostInfoStream"
+	MonitorService_ReportMonitor_FullMethodName        = "/protos.MonitorService/ReportMonitor"
+	MonitorService_ReportMonitorStream_FullMethodName  = "/protos.MonitorService/ReportMonitorStream"
+	MonitorService_ReportHostInfo_FullMethodName       = "/protos.MonitorService/ReportHostInfo"
+	MonitorService_ReportHostInfoStream_FullMethodName = "/protos.MonitorService/ReportHostInfoStream"
 )
 
-// HostServiceClient is the client API for HostService service.
+// MonitorServiceClient is the client API for MonitorService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
-type HostServiceClient interface {
+type MonitorServiceClient interface {
+	ReportMonitor(ctx context.Context, in *MonitorTick, opts ...grpc.CallOption) (*Receipt, error)
+	ReportMonitorStream(ctx context.Context, opts ...grpc.CallOption) (MonitorService_ReportMonitorStreamClient, error)
 	ReportHostInfo(ctx context.Context, in *HostInfo, opts ...grpc.CallOption) (*Receipt, error)
-	ReportHostInfoStream(ctx context.Context, opts ...grpc.CallOption) (HostService_ReportHostInfoStreamClient, error)
+	ReportHostInfoStream(ctx context.Context, opts ...grpc.CallOption) (MonitorService_ReportHostInfoStreamClient, error)
 }
 
-type hostServiceClient struct {
+type monitorServiceClient struct {
 	cc grpc.ClientConnInterface
 }
 
-func NewHostServiceClient(cc grpc.ClientConnInterface) HostServiceClient {
-	return &hostServiceClient{cc}
+func NewMonitorServiceClient(cc grpc.ClientConnInterface) MonitorServiceClient {
+	return &monitorServiceClient{cc}
 }
 
-func (c *hostServiceClient) ReportHostInfo(ctx context.Context, in *HostInfo, opts ...grpc.CallOption) (*Receipt, error) {
+func (c *monitorServiceClient) ReportMonitor(ctx context.Context, in *MonitorTick, opts ...grpc.CallOption) (*Receipt, error) {
 	out := new(Receipt)
-	err := c.cc.Invoke(ctx, HostService_ReportHostInfo_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, MonitorService_ReportMonitor_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *hostServiceClient) ReportHostInfoStream(ctx context.Context, opts ...grpc.CallOption) (HostService_ReportHostInfoStreamClient, error) {
-	stream, err := c.cc.NewStream(ctx, &HostService_ServiceDesc.Streams[0], HostService_ReportHostInfoStream_FullMethodName, opts...)
+func (c *monitorServiceClient) ReportMonitorStream(ctx context.Context, opts ...grpc.CallOption) (MonitorService_ReportMonitorStreamClient, error) {
+	stream, err := c.cc.NewStream(ctx, &MonitorService_ServiceDesc.Streams[0], MonitorService_ReportMonitorStream_FullMethodName, opts...)
 	if err != nil {
 		return nil, err
 	}
-	x := &hostServiceReportHostInfoStreamClient{stream}
+	x := &monitorServiceReportMonitorStreamClient{stream}
 	return x, nil
 }
 
-type HostService_ReportHostInfoStreamClient interface {
-	Send(*HostInfo) error
+type MonitorService_ReportMonitorStreamClient interface {
+	Send(*MonitorTick) error
 	CloseAndRecv() (*Receipt, error)
 	grpc.ClientStream
 }
 
-type hostServiceReportHostInfoStreamClient struct {
+type monitorServiceReportMonitorStreamClient struct {
 	grpc.ClientStream
 }
 
-func (x *hostServiceReportHostInfoStreamClient) Send(m *HostInfo) error {
+func (x *monitorServiceReportMonitorStreamClient) Send(m *MonitorTick) error {
 	return x.ClientStream.SendMsg(m)
 }
 
-func (x *hostServiceReportHostInfoStreamClient) CloseAndRecv() (*Receipt, error) {
+func (x *monitorServiceReportMonitorStreamClient) CloseAndRecv() (*Receipt, error) {
 	if err := x.ClientStream.CloseSend(); err != nil {
 		return nil, err
 	}
@@ -82,75 +86,170 @@ func (x *hostServiceReportHostInfoStreamClient) CloseAndRecv() (*Receipt, error)
 	return m, nil
 }
 
-// HostServiceServer is the server API for HostService service.
-// All implementations must embed UnimplementedHostServiceServer
+func (c *monitorServiceClient) ReportHostInfo(ctx context.Context, in *HostInfo, opts ...grpc.CallOption) (*Receipt, error) {
+	out := new(Receipt)
+	err := c.cc.Invoke(ctx, MonitorService_ReportHostInfo_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *monitorServiceClient) ReportHostInfoStream(ctx context.Context, opts ...grpc.CallOption) (MonitorService_ReportHostInfoStreamClient, error) {
+	stream, err := c.cc.NewStream(ctx, &MonitorService_ServiceDesc.Streams[1], MonitorService_ReportHostInfoStream_FullMethodName, opts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &monitorServiceReportHostInfoStreamClient{stream}
+	return x, nil
+}
+
+type MonitorService_ReportHostInfoStreamClient interface {
+	Send(*HostInfo) error
+	CloseAndRecv() (*Receipt, error)
+	grpc.ClientStream
+}
+
+type monitorServiceReportHostInfoStreamClient struct {
+	grpc.ClientStream
+}
+
+func (x *monitorServiceReportHostInfoStreamClient) Send(m *HostInfo) error {
+	return x.ClientStream.SendMsg(m)
+}
+
+func (x *monitorServiceReportHostInfoStreamClient) CloseAndRecv() (*Receipt, error) {
+	if err := x.ClientStream.CloseSend(); err != nil {
+		return nil, err
+	}
+	m := new(Receipt)
+	if err := x.ClientStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
+// MonitorServiceServer is the server API for MonitorService service.
+// All implementations must embed UnimplementedMonitorServiceServer
 // for forward compatibility
-type HostServiceServer interface {
+type MonitorServiceServer interface {
+	ReportMonitor(context.Context, *MonitorTick) (*Receipt, error)
+	ReportMonitorStream(MonitorService_ReportMonitorStreamServer) error
 	ReportHostInfo(context.Context, *HostInfo) (*Receipt, error)
-	ReportHostInfoStream(HostService_ReportHostInfoStreamServer) error
-	mustEmbedUnimplementedHostServiceServer()
+	ReportHostInfoStream(MonitorService_ReportHostInfoStreamServer) error
+	mustEmbedUnimplementedMonitorServiceServer()
 }
 
-// UnimplementedHostServiceServer must be embedded to have forward compatible implementations.
-type UnimplementedHostServiceServer struct {
+// UnimplementedMonitorServiceServer must be embedded to have forward compatible implementations.
+type UnimplementedMonitorServiceServer struct {
 }
 
-func (UnimplementedHostServiceServer) ReportHostInfo(context.Context, *HostInfo) (*Receipt, error) {
+func (UnimplementedMonitorServiceServer) ReportMonitor(context.Context, *MonitorTick) (*Receipt, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ReportMonitor not implemented")
+}
+func (UnimplementedMonitorServiceServer) ReportMonitorStream(MonitorService_ReportMonitorStreamServer) error {
+	return status.Errorf(codes.Unimplemented, "method ReportMonitorStream not implemented")
+}
+func (UnimplementedMonitorServiceServer) ReportHostInfo(context.Context, *HostInfo) (*Receipt, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ReportHostInfo not implemented")
 }
-func (UnimplementedHostServiceServer) ReportHostInfoStream(HostService_ReportHostInfoStreamServer) error {
+func (UnimplementedMonitorServiceServer) ReportHostInfoStream(MonitorService_ReportHostInfoStreamServer) error {
 	return status.Errorf(codes.Unimplemented, "method ReportHostInfoStream not implemented")
 }
-func (UnimplementedHostServiceServer) mustEmbedUnimplementedHostServiceServer() {}
+func (UnimplementedMonitorServiceServer) mustEmbedUnimplementedMonitorServiceServer() {}
 
-// UnsafeHostServiceServer may be embedded to opt out of forward compatibility for this service.
-// Use of this interface is not recommended, as added methods to HostServiceServer will
+// UnsafeMonitorServiceServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to MonitorServiceServer will
 // result in compilation errors.
-type UnsafeHostServiceServer interface {
-	mustEmbedUnimplementedHostServiceServer()
+type UnsafeMonitorServiceServer interface {
+	mustEmbedUnimplementedMonitorServiceServer()
 }
 
-func RegisterHostServiceServer(s grpc.ServiceRegistrar, srv HostServiceServer) {
-	s.RegisterService(&HostService_ServiceDesc, srv)
+func RegisterMonitorServiceServer(s grpc.ServiceRegistrar, srv MonitorServiceServer) {
+	s.RegisterService(&MonitorService_ServiceDesc, srv)
 }
 
-func _HostService_ReportHostInfo_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _MonitorService_ReportMonitor_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(MonitorTick)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MonitorServiceServer).ReportMonitor(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: MonitorService_ReportMonitor_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MonitorServiceServer).ReportMonitor(ctx, req.(*MonitorTick))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _MonitorService_ReportMonitorStream_Handler(srv interface{}, stream grpc.ServerStream) error {
+	return srv.(MonitorServiceServer).ReportMonitorStream(&monitorServiceReportMonitorStreamServer{stream})
+}
+
+type MonitorService_ReportMonitorStreamServer interface {
+	SendAndClose(*Receipt) error
+	Recv() (*MonitorTick, error)
+	grpc.ServerStream
+}
+
+type monitorServiceReportMonitorStreamServer struct {
+	grpc.ServerStream
+}
+
+func (x *monitorServiceReportMonitorStreamServer) SendAndClose(m *Receipt) error {
+	return x.ServerStream.SendMsg(m)
+}
+
+func (x *monitorServiceReportMonitorStreamServer) Recv() (*MonitorTick, error) {
+	m := new(MonitorTick)
+	if err := x.ServerStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
+func _MonitorService_ReportHostInfo_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(HostInfo)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(HostServiceServer).ReportHostInfo(ctx, in)
+		return srv.(MonitorServiceServer).ReportHostInfo(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: HostService_ReportHostInfo_FullMethodName,
+		FullMethod: MonitorService_ReportHostInfo_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(HostServiceServer).ReportHostInfo(ctx, req.(*HostInfo))
+		return srv.(MonitorServiceServer).ReportHostInfo(ctx, req.(*HostInfo))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _HostService_ReportHostInfoStream_Handler(srv interface{}, stream grpc.ServerStream) error {
-	return srv.(HostServiceServer).ReportHostInfoStream(&hostServiceReportHostInfoStreamServer{stream})
+func _MonitorService_ReportHostInfoStream_Handler(srv interface{}, stream grpc.ServerStream) error {
+	return srv.(MonitorServiceServer).ReportHostInfoStream(&monitorServiceReportHostInfoStreamServer{stream})
 }
 
-type HostService_ReportHostInfoStreamServer interface {
+type MonitorService_ReportHostInfoStreamServer interface {
 	SendAndClose(*Receipt) error
 	Recv() (*HostInfo, error)
 	grpc.ServerStream
 }
 
-type hostServiceReportHostInfoStreamServer struct {
+type monitorServiceReportHostInfoStreamServer struct {
 	grpc.ServerStream
 }
 
-func (x *hostServiceReportHostInfoStreamServer) SendAndClose(m *Receipt) error {
+func (x *monitorServiceReportHostInfoStreamServer) SendAndClose(m *Receipt) error {
 	return x.ServerStream.SendMsg(m)
 }
 
-func (x *hostServiceReportHostInfoStreamServer) Recv() (*HostInfo, error) {
+func (x *monitorServiceReportHostInfoStreamServer) Recv() (*HostInfo, error) {
 	m := new(HostInfo)
 	if err := x.ServerStream.RecvMsg(m); err != nil {
 		return nil, err
@@ -158,22 +257,31 @@ func (x *hostServiceReportHostInfoStreamServer) Recv() (*HostInfo, error) {
 	return m, nil
 }
 
-// HostService_ServiceDesc is the grpc.ServiceDesc for HostService service.
+// MonitorService_ServiceDesc is the grpc.ServiceDesc for MonitorService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
-var HostService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "protos.HostService",
-	HandlerType: (*HostServiceServer)(nil),
+var MonitorService_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "protos.MonitorService",
+	HandlerType: (*MonitorServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
+			MethodName: "ReportMonitor",
+			Handler:    _MonitorService_ReportMonitor_Handler,
+		},
+		{
 			MethodName: "ReportHostInfo",
-			Handler:    _HostService_ReportHostInfo_Handler,
+			Handler:    _MonitorService_ReportHostInfo_Handler,
 		},
 	},
 	Streams: []grpc.StreamDesc{
 		{
+			StreamName:    "ReportMonitorStream",
+			Handler:       _MonitorService_ReportMonitorStream_Handler,
+			ClientStreams: true,
+		},
+		{
 			StreamName:    "ReportHostInfoStream",
-			Handler:       _HostService_ReportHostInfoStream_Handler,
+			Handler:       _MonitorService_ReportHostInfoStream_Handler,
 			ClientStreams: true,
 		},
 	},

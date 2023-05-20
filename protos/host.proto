@@ -5,7 +5,11 @@ package protos;
 
 import "protos/base.proto";
 
-service HostService {
+
+
+service MonitorService {
+  rpc ReportMonitor(MonitorTick)returns(protos.Receipt){}
+  rpc ReportMonitorStream(stream MonitorTick)returns(protos.Receipt){}
   rpc ReportHostInfo(HostInfo)returns(protos.Receipt){}
   rpc ReportHostInfoStream(stream HostInfo)returns(protos.Receipt){}
 }
@@ -117,4 +121,28 @@ message Header {
   string virtualization_system = 11; // Virtualization system running on the system
   string virtualization_role = 12; // Role of the system in the virtualization environment (guest or host)
   string host_id = 13; // Host ID of the system
+}
+
+
+message MonitorTick {
+  string host_id = 1; // Host ID of the system
+  int64 timestamp = 2;
+
+  double cpu_load = 10;
+  double cpu_load_system = 11;
+  double cpu_load_user = 12;
+
+  uint64 mem_used = 21;
+  uint64 swap_used = 25;
+
+  uint64 net_speed_snt = 30;
+  uint64 net_speed_rcv = 31;
+  uint64 net_total_snt = 32;
+  uint64 net_total_rcv = 33;
+  uint64 net_total_packets_snt = 34;
+  uint64 net_total_packets_rcv = 35;
+
+  double load1 = 41;
+  double load5 = 42;
+  double load15 = 43;
 }

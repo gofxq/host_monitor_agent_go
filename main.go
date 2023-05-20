@@ -34,7 +34,7 @@ func main() {
 
 	go ReportHostInfo(conn)
 
-	go ReportMinitorInfo(conn)
+	go ReportMonitorInfo(conn)
 
 	select {}
 
@@ -59,7 +59,7 @@ func ReportHostInfo(conn *grpc.ClientConn) {
 	}
 }
 
-func ReportMinitorInfo(conn *grpc.ClientConn) {
+func ReportMonitorInfo(conn *grpc.ClientConn) {
 	interval := time.Second
 	c := pb.NewMonitorServiceClient(conn)
 	clientInfo, err := c.ReportMonitorStream(context.Background())
