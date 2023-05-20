@@ -13,7 +13,8 @@ import (
 func main() {
 	// 设置一个连接到 gRPC 服务的连接
 	conn, err := grpc.Dial(
-		"localhost:50051",
+		//"localhost:50051",
+		"sh.gofxq.com:50051",
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
 		grpc.WithBlock(),
 	)
@@ -40,7 +41,8 @@ func main() {
 		// 调用 Report 方法
 		err := client.Send(hostInfo)
 		if err != nil {
-			log.Fatalf("could not report: %v", err)
+			log.Printf("could not report: %v", err)
+			time.Sleep(time.Second * 10)
 		}
 	}
 
