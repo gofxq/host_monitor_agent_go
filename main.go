@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"github.com/gofxq/host_monitor_agent_go/monitor"
 	pb "github.com/gofxq/host_monitor_agent_go/protos/protos"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
@@ -25,32 +26,22 @@ func main() {
 	c := pb.NewMonitorServiceClient(conn)
 
 	// 准备请求数据
-	hostInfo := &pb.HostInfo{
-		DeviceId:     111,
-		HostName:     "abc",
-		Os:           "",
-		OsVersion:    "",
-		CpuName:      "",
-		CpuMaxFreq:   "",
-		CpuCoreCount: "",
-		RamTotal:     "",
-		RamFreq:      "",
-		SwapTotal:    "",
-		DiskInfos:    nil,
-		GpuInfos:     nil,
+	hostInfo := monitor.GetHost(context.TODO())
+
+	client, err := c.ReportHostInfoStream(context.Background())
+	if err != nil {
+		log.Fatalln(err)
 	}
-
 	log.Println(time.Now())
-	for i := int64(0); i < 1e6; i++ {
+	t := time.Tick(time.Second)
+	for i := range t {
+		log.Println(i, time.Now())
 
-		hostInfo.DeviceId = i
 		// 调用 Report 方法
-		response, err := c.ReportHostInfo(context.Background(), hostInfo)
+		err := client.Send(hostInfo)
 		if err != nil {
-			log.Printf("Report Response: %v, errCode:%d", response, response.ErrCode)
 			log.Fatalf("could not report: %v", err)
 		}
 	}
-	log.Println(time.Now())
 
 }

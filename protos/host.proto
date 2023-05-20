@@ -7,16 +7,51 @@ import "protos/base.proto";
 
 service MonitorService {
   rpc ReportHostInfo(HostInfo)returns(protos.Receipt){}
-  rpc ReportPerfInfo(PerformanceData)returns(protos.Receipt){}
+  rpc ReportHostInfoStream(stream HostInfo)returns(protos.Receipt){}
 }
 
 
-message DiskInfo {
-  int32 id = 1;
-  string name = 2;
-  int64 total_size = 3; // kb
-  int64 in_use_size = 4; // kb
+message CpuInfo {
+  // CPU is the CPU number.
+  int32 cpu = 1;
+
+  // VendorID is the CPU vendor identifier.
+  string vendor_id = 2;
+
+  // Family is the CPU family.
+  string family = 3;
+
+  // Model is the CPU model.
+  string model = 4;
+
+  // Stepping is the CPU stepping.
+  int32 stepping = 5;
+
+  // PhysicalID is the physical ID of the CPU.
+  string physical_id = 6;
+
+  // CoreID is the core ID of the CPU.
+  string core_id = 7;
+
+  // Cores is the number of cores in the CPU.
+  int32 cores = 8;
+
+  // ModelName is the model name of the CPU.
+  string model_name = 9;
+
+  // Mhz is the clock speed of the CPU in MHz.
+  double mhz = 10;
+
+  // CacheSize is the cache size of the CPU.
+  int32 cache_size = 11;
+
+  // Flags is a list of flags for the CPU.
+  repeated string flags = 12;
+
+  // Microcode is the microcode of the CPU.
+  string microcode = 13;
 }
+
 
 message GpuInfo {
   int32 id = 1;
@@ -25,39 +60,61 @@ message GpuInfo {
   map<string, string> extra_info = 4;
 }
 
+message MemInfo {
+  uint64 total = 1;
+  uint64 used = 2;
+  uint64 free = 3;
+}
+
+message DiskInfo {
+  // UsageStat represents statistics about usage of a file system.
+  // Path is the file system's mount point.
+  string path = 1;
+  // Fstype is the file system type.
+  string fstype = 2;
+  // Total is the total number of bytes in the file system.
+  uint64 total = 3;
+  // Free is the total number of free bytes in the file system.
+  uint64 free = 4;
+  // Used is the total number of used bytes in the file system.
+  uint64 used = 5;
+  // UsedPercent is the percentage of used bytes in the file system.
+  double used_percent = 6;
+  // InodesTotal is the total number of inodes in the file system.
+  uint64 inodes_total = 7;
+  // InodesUsed is the total number of used inodes in the file system.
+  uint64 inodes_used = 8;
+  // InodesFree is the total number of free inodes in the file system.
+  uint64 inodes_free = 9;
+  // InodesUsedPercent is the percentage of used inodes in the file system.
+  double inodes_used_percent = 10;
+}
+
 // 定时上报主机信息 freq: 1day
 message HostInfo {
-  int64 device_id = 1;
-  string host_name = 2;
-  string os = 3;// /mac/android/ios/linux
-  string os_version = 4;
+  Header header = 1;
+  repeated CpuInfo cpu_infos = 2;
+  repeated GpuInfo gpu_infos = 3;
+  MemInfo mem_info = 4;
+  repeated DiskInfo disk_infos = 5;
 
-  string cpu_name = 11;//  cpu型号（不一定有）
-  string cpu_max_freq = 12;//  cpu频率，MHz（不一定有）
-  string cpu_core_count = 13;//  cpu核心数（不一定有）
 
-  string ram_total = 21;
-  string ram_freq = 22;
-  string swap_total = 23;
-
-  repeated DiskInfo disk_infos = 31;
-  repeated GpuInfo gpu_infos = 32;
 }
+
 
 message Header {
-
-}
-
-message PerformanceData {
-
-  string ip_v4 = 10;
-  string ip_v6 = 11;
-
-  string ram_total = 21; // in kb
-  string ram_in_use = 22; // in kb
-  string ram_cached = 23; // in kb
-  string ram_free = 24; // in kb
-  string ram_swap_total = 25;
-  string ram_swap_in_use = 26;
-
+  int64 device_id = 99;// 随机id
+  string hostname = 1; // Hostname of the system
+  uint64 uptime = 2; // Uptime of the system in seconds
+  uint64 boot_time = 3; // Boot time of the system in seconds since epoch
+  uint64 procs = 4; // Number of processes running on the system
+  string os = 5; // Operating system name
+  string platform = 6; // Platform name
+  string platform_family = 7; // Platform family name
+  string platform_version = 8; // Platform version as a string
+  string kernel_version = 9; // Version of the kernel running on the system
+  string kernel_arch = 10; // Native CPU architecture of the system
+  string virtualization_system = 11; // Virtualization system running on the system
+  string virtualization_role = 12; // Role of the system in the virtualization environment (guest or host)
+  string host_id = 13; // Host ID of the system
 }
