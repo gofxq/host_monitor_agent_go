@@ -1,0 +1,63 @@
+syntax = "proto3";
+option go_package = "./pb_model";
+
+package protos;
+
+import "protos/base.proto";
+
+service MonitorService {
+  rpc ReportHostInfo(HostInfo)returns(protos.Receipt){}
+  rpc ReportPerfInfo(PerformanceData)returns(protos.Receipt){}
+}
+
+
+message DiskInfo {
+  int32 id = 1;
+  string name = 2;
+  int64 total_size = 3; // kb
+  int64 in_use_size = 4; // kb
+}
+
+message GpuInfo {
+  int32 id = 1;
+  string model = 2;
+  string name = 3;
+  map<string, string> extra_info = 4;
+}
+
+// 定时上报主机信息 freq: 1day
+message HostInfo {
+  int64 device_id = 1;
+  string host_name = 2;
+  string os = 3;// /mac/android/ios/linux
+  string os_version = 4;
+
+  string cpu_name = 11;//  cpu型号（不一定有）
+  string cpu_max_freq = 12;//  cpu频率，MHz（不一定有）
+  string cpu_core_count = 13;//  cpu核心数（不一定有）
+
+  string ram_total = 21;
+  string ram_freq = 22;
+  string swap_total = 23;
+
+  repeated DiskInfo disk_infos = 31;
+  repeated GpuInfo gpu_infos = 32;
+}
+
+message Header {
+
+}
+
+message PerformanceData {
+
+  string ip_v4 = 10;
+  string ip_v6 = 11;
+
+  string ram_total = 21; // in kb
+  string ram_in_use = 22; // in kb
+  string ram_cached = 23; // in kb
+  string ram_free = 24; // in kb
+  string ram_swap_total = 25;
+  string ram_swap_in_use = 26;
+
+}
