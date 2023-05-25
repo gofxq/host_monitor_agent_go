@@ -13,9 +13,9 @@ import (
 )
 
 const (
-	//target = "sh.gofxq.com:50051"
-	//target = "sh.gofxq.com:50051"
-	target = "192.168.6.3:50051"
+	target = "bigbro.gofxq.com:8008"
+	//target = "localhost:50051"
+	//target = "192.168.6.3:50051"
 )
 
 func main() {
@@ -68,7 +68,7 @@ func ReportHostInfo(conn *grpc.ClientConn) {
 }
 
 func ReportMonitorInfo(conn *grpc.ClientConn) {
-	interval := time.Second
+	interval := time.Second //*3
 	c := pb.NewMonitorServiceClient(conn)
 	clientInfo, err := c.ReportMonitorStream(context.Background())
 	if err != nil {
