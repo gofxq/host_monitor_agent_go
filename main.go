@@ -83,7 +83,7 @@ func ReportMonitorInfo(conn *grpc.ClientConn) {
 		err := clientInfo.Send(info)
 		if err != nil {
 			log.Printf("could not report: %v", err)
-			time.Sleep(interval * 10)
+			time.Sleep(interval * 3)
 			conn, err = grpc.Dial(
 				//"localhost:50051",
 				target,

@@ -40,14 +40,14 @@ func init() {
 	hostID = info.HostID
 }
 
-func GetMonitor(c context.Context) *pb.MonitorTick {
+func GetMonitor(c context.Context) *pb.TickMonitorInfo {
 	TrackNetworkSpeed()
 	loadStat, err := load.Avg()
 	if err != nil {
 		loadStat = &load.AvgStat{}
 	}
 
-	ret := &pb.MonitorTick{
+	ret := &pb.TickMonitorInfo{
 		HostId:             hostID,
 		Timestamp:          time.Now().Unix(),
 		NetSpeedSnt:        NetSpeedSnt,

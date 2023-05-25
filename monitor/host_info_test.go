@@ -14,7 +14,7 @@ func TestGetHost(t *testing.T) {
 	tests := []struct {
 		name string
 		args args
-		want *pb.HostInfo
+		want *pb.TickHostInfo
 	}{
 		{
 			name: "",

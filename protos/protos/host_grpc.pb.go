@@ -29,9 +29,9 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type MonitorServiceClient interface {
-	ReportMonitor(ctx context.Context, in *MonitorTick, opts ...grpc.CallOption) (*Receipt, error)
+	ReportMonitor(ctx context.Context, in *TickMonitorInfo, opts ...grpc.CallOption) (*Receipt, error)
 	ReportMonitorStream(ctx context.Context, opts ...grpc.CallOption) (MonitorService_ReportMonitorStreamClient, error)
-	ReportHostInfo(ctx context.Context, in *HostInfo, opts ...grpc.CallOption) (*Receipt, error)
+	ReportHostInfo(ctx context.Context, in *TickHostInfo, opts ...grpc.CallOption) (*Receipt, error)
 	ReportHostInfoStream(ctx context.Context, opts ...grpc.CallOption) (MonitorService_ReportHostInfoStreamClient, error)
 }
 
@@ -43,7 +43,7 @@ func NewMonitorServiceClient(cc grpc.ClientConnInterface) MonitorServiceClient {
 	return &monitorServiceClient{cc}
 }
 
-func (c *monitorServiceClient) ReportMonitor(ctx context.Context, in *MonitorTick, opts ...grpc.CallOption) (*Receipt, error) {
+func (c *monitorServiceClient) ReportMonitor(ctx context.Context, in *TickMonitorInfo, opts ...grpc.CallOption) (*Receipt, error) {
 	out := new(Receipt)
 	err := c.cc.Invoke(ctx, MonitorService_ReportMonitor_FullMethodName, in, out, opts...)
 	if err != nil {
@@ -62,7 +62,7 @@ func (c *monitorServiceClient) ReportMonitorStream(ctx context.Context, opts ...
 }
 
 type MonitorService_ReportMonitorStreamClient interface {
-	Send(*MonitorTick) error
+	Send(*TickMonitorInfo) error
 	CloseAndRecv() (*Receipt, error)
 	grpc.ClientStream
 }
@@ -71,7 +71,7 @@ type monitorServiceReportMonitorStreamClient struct {
 	grpc.ClientStream
 }
 
-func (x *monitorServiceReportMonitorStreamClient) Send(m *MonitorTick) error {
+func (x *monitorServiceReportMonitorStreamClient) Send(m *TickMonitorInfo) error {
 	return x.ClientStream.SendMsg(m)
 }
 
@@ -86,7 +86,7 @@ func (x *monitorServiceReportMonitorStreamClient) CloseAndRecv() (*Receipt, erro
 	return m, nil
 }
 
-func (c *monitorServiceClient) ReportHostInfo(ctx context.Context, in *HostInfo, opts ...grpc.CallOption) (*Receipt, error) {
+func (c *monitorServiceClient) ReportHostInfo(ctx context.Context, in *TickHostInfo, opts ...grpc.CallOption) (*Receipt, error) {
 	out := new(Receipt)
 	err := c.cc.Invoke(ctx, MonitorService_ReportHostInfo_FullMethodName, in, out, opts...)
 	if err != nil {
@@ -105,7 +105,7 @@ func (c *monitorServiceClient) ReportHostInfoStream(ctx context.Context, opts ..
 }
 
 type MonitorService_ReportHostInfoStreamClient interface {
-	Send(*HostInfo) error
+	Send(*TickHostInfo) error
 	CloseAndRecv() (*Receipt, error)
 	grpc.ClientStream
 }
@@ -114,7 +114,7 @@ type monitorServiceReportHostInfoStreamClient struct {
 	grpc.ClientStream
 }
 
-func (x *monitorServiceReportHostInfoStreamClient) Send(m *HostInfo) error {
+func (x *monitorServiceReportHostInfoStreamClient) Send(m *TickHostInfo) error {
 	return x.ClientStream.SendMsg(m)
 }
 
@@ -133,9 +133,9 @@ func (x *monitorServiceReportHostInfoStreamClient) CloseAndRecv() (*Receipt, err
 // All implementations must embed UnimplementedMonitorServiceServer
 // for forward compatibility
 type MonitorServiceServer interface {
-	ReportMonitor(context.Context, *MonitorTick) (*Receipt, error)
+	ReportMonitor(context.Context, *TickMonitorInfo) (*Receipt, error)
 	ReportMonitorStream(MonitorService_ReportMonitorStreamServer) error
-	ReportHostInfo(context.Context, *HostInfo) (*Receipt, error)
+	ReportHostInfo(context.Context, *TickHostInfo) (*Receipt, error)
 	ReportHostInfoStream(MonitorService_ReportHostInfoStreamServer) error
 	mustEmbedUnimplementedMonitorServiceServer()
 }
@@ -144,13 +144,13 @@ type MonitorServiceServer interface {
 type UnimplementedMonitorServiceServer struct {
 }
 
-func (UnimplementedMonitorServiceServer) ReportMonitor(context.Context, *MonitorTick) (*Receipt, error) {
+func (UnimplementedMonitorServiceServer) ReportMonitor(context.Context, *TickMonitorInfo) (*Receipt, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ReportMonitor not implemented")
 }
 func (UnimplementedMonitorServiceServer) ReportMonitorStream(MonitorService_ReportMonitorStreamServer) error {
 	return status.Errorf(codes.Unimplemented, "method ReportMonitorStream not implemented")
 }
-func (UnimplementedMonitorServiceServer) ReportHostInfo(context.Context, *HostInfo) (*Receipt, error) {
+func (UnimplementedMonitorServiceServer) ReportHostInfo(context.Context, *TickHostInfo) (*Receipt, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ReportHostInfo not implemented")
 }
 func (UnimplementedMonitorServiceServer) ReportHostInfoStream(MonitorService_ReportHostInfoStreamServer) error {
@@ -170,7 +170,7 @@ func RegisterMonitorServiceServer(s grpc.ServiceRegistrar, srv MonitorServiceSer
 }
 
 func _MonitorService_ReportMonitor_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(MonitorTick)
+	in := new(TickMonitorInfo)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -182,7 +182,7 @@ func _MonitorService_ReportMonitor_Handler(srv interface{}, ctx context.Context,
 		FullMethod: MonitorService_ReportMonitor_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(MonitorServiceServer).ReportMonitor(ctx, req.(*MonitorTick))
+		return srv.(MonitorServiceServer).ReportMonitor(ctx, req.(*TickMonitorInfo))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -193,7 +193,7 @@ func _MonitorService_ReportMonitorStream_Handler(srv interface{}, stream grpc.Se
 
 type MonitorService_ReportMonitorStreamServer interface {
 	SendAndClose(*Receipt) error
-	Recv() (*MonitorTick, error)
+	Recv() (*TickMonitorInfo, error)
 	grpc.ServerStream
 }
 
@@ -205,8 +205,8 @@ func (x *monitorServiceReportMonitorStreamServer) SendAndClose(m *Receipt) error
 	return x.ServerStream.SendMsg(m)
 }
 
-func (x *monitorServiceReportMonitorStreamServer) Recv() (*MonitorTick, error) {
-	m := new(MonitorTick)
+func (x *monitorServiceReportMonitorStreamServer) Recv() (*TickMonitorInfo, error) {
+	m := new(TickMonitorInfo)
 	if err := x.ServerStream.RecvMsg(m); err != nil {
 		return nil, err
 	}
@@ -214,7 +214,7 @@ func (x *monitorServiceReportMonitorStreamServer) Recv() (*MonitorTick, error) {
 }
 
 func _MonitorService_ReportHostInfo_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(HostInfo)
+	in := new(TickHostInfo)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -226,7 +226,7 @@ func _MonitorService_ReportHostInfo_Handler(srv interface{}, ctx context.Context
 		FullMethod: MonitorService_ReportHostInfo_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(MonitorServiceServer).ReportHostInfo(ctx, req.(*HostInfo))
+		return srv.(MonitorServiceServer).ReportHostInfo(ctx, req.(*TickHostInfo))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -237,7 +237,7 @@ func _MonitorService_ReportHostInfoStream_Handler(srv interface{}, stream grpc.S
 
 type MonitorService_ReportHostInfoStreamServer interface {
 	SendAndClose(*Receipt) error
-	Recv() (*HostInfo, error)
+	Recv() (*TickHostInfo, error)
 	grpc.ServerStream
 }
 
@@ -249,8 +249,8 @@ func (x *monitorServiceReportHostInfoStreamServer) SendAndClose(m *Receipt) erro
 	return x.ServerStream.SendMsg(m)
 }
 
-func (x *monitorServiceReportHostInfoStreamServer) Recv() (*HostInfo, error) {
-	m := new(HostInfo)
+func (x *monitorServiceReportHostInfoStreamServer) Recv() (*TickHostInfo, error) {
+	m := new(TickHostInfo)
 	if err := x.ServerStream.RecvMsg(m); err != nil {
 		return nil, err
 	}

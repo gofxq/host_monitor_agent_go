@@ -3,55 +3,101 @@ option go_package = "./pb_model";
 
 package protos;
 
-import "protos/base.proto";
 
+
+message Receipt{
+  int32 err_code = 1;
+  string err_msg = 2;
+  string err_detail = 3;
+}
 
 
 service MonitorService {
-  rpc ReportMonitor(MonitorTick)returns(protos.Receipt){}
-  rpc ReportMonitorStream(stream MonitorTick)returns(protos.Receipt){}
-  rpc ReportHostInfo(HostInfo)returns(protos.Receipt){}
-  rpc ReportHostInfoStream(stream HostInfo)returns(protos.Receipt){}
+  rpc ReportMonitor(TickMonitorInfo)returns(Receipt){}
+  rpc ReportMonitorStream(stream TickMonitorInfo)returns(Receipt){}
+  rpc ReportHostInfo(TickHostInfo)returns(Receipt){}
+  rpc ReportHostInfoStream(stream TickHostInfo)returns(Receipt){}
+}
+
+
+
+// 定时上报主机信息 freq: 1day
+message TickHostInfo {
+  Header header = 1;
+  repeated CpuInfo cpu_infos = 2;
+  repeated GpuInfo gpu_infos = 3;
+  MemInfo mem_info = 4;
+  repeated DiskInfo disk_infos = 5;
+}
+
+
+message TickMonitorInfo {
+  string host_id = 1; // Host ID of the system
+  int64 timestamp = 2;
+
+  double cpu_load = 10;
+  double cpu_load_system = 11;
+  double cpu_load_user = 12;
+
+  uint64 mem_used = 21;
+  uint64 swap_used = 25;
+
+  uint64 net_speed_snt = 30;
+  uint64 net_speed_rcv = 31;
+  uint64 net_total_snt = 32;
+  uint64 net_total_rcv = 33;
+  uint64 net_total_packets_snt = 34;
+  uint64 net_total_packets_rcv = 35;
+
+  double load1 = 41;
+  double load5 = 42;
+  double load15 = 43;
+}
+
+
+message Header {
+  int64 device_id = 99;// 随机id
+  string hostname = 1; // Hostname of the system
+  uint64 uptime = 2; // Uptime of the system in seconds
+  uint64 boot_time = 3; // Boot time of the system in seconds since epoch
+  uint64 procs = 4; // Number of processes running on the system
+  string os = 5; // Operating system name
+  string platform = 6; // Platform name
+  string platform_family = 7; // Platform family name
+  string platform_version = 8; // Platform version as a string
+  string kernel_version = 9; // Version of the kernel running on the system
+  string kernel_arch = 10; // Native CPU architecture of the system
+  string virtualization_system = 11; // Virtualization system running on the system
+  string virtualization_role = 12; // Role of the system in the virtualization environment (guest or host)
+  string host_id = 13; // Host ID of the system
 }
 
 
 message CpuInfo {
   // CPU is the CPU number.
   int32 cpu = 1;
-
   // VendorID is the CPU vendor identifier.
   string vendor_id = 2;
-
   // Family is the CPU family.
   string family = 3;
-
   // Model is the CPU model.
   string model = 4;
-
   // Stepping is the CPU stepping.
   int32 stepping = 5;
-
   // PhysicalID is the physical ID of the CPU.
   string physical_id = 6;
-
   // CoreID is the core ID of the CPU.
   string core_id = 7;
-
   // Cores is the number of cores in the CPU.
   int32 cores = 8;
-
   // ModelName is the model name of the CPU.
   string model_name = 9;
-
   // Mhz is the clock speed of the CPU in MHz.
   double mhz = 10;
-
   // CacheSize is the cache size of the CPU.
   int32 cache_size = 11;
-
   // Flags is a list of flags for the CPU.
   repeated string flags = 12;
-
   // Microcode is the microcode of the CPU.
   string microcode = 13;
 }
@@ -92,57 +138,4 @@ message DiskInfo {
   uint64 inodes_free = 9;
   // InodesUsedPercent is the percentage of used inodes in the file system.
   double inodes_used_percent = 10;
-}
-
-// 定时上报主机信息 freq: 1day
-message HostInfo {
-  Header header = 1;
-  repeated CpuInfo cpu_infos = 2;
-  repeated GpuInfo gpu_infos = 3;
-  MemInfo mem_info = 4;
-  repeated DiskInfo disk_infos = 5;
-
-
-}
-
-
-message Header {
-  int64 device_id = 99;// 随机id
-  string hostname = 1; // Hostname of the system
-  uint64 uptime = 2; // Uptime of the system in seconds
-  uint64 boot_time = 3; // Boot time of the system in seconds since epoch
-  uint64 procs = 4; // Number of processes running on the system
-  string os = 5; // Operating system name
-  string platform = 6; // Platform name
-  string platform_family = 7; // Platform family name
-  string platform_version = 8; // Platform version as a string
-  string kernel_version = 9; // Version of the kernel running on the system
-  string kernel_arch = 10; // Native CPU architecture of the system
-  string virtualization_system = 11; // Virtualization system running on the system
-  string virtualization_role = 12; // Role of the system in the virtualization environment (guest or host)
-  string host_id = 13; // Host ID of the system
-}
-
-
-message MonitorTick {
-  string host_id = 1; // Host ID of the system
-  int64 timestamp = 2;
-
-  double cpu_load = 10;
-  double cpu_load_system = 11;
-  double cpu_load_user = 12;
-
-  uint64 mem_used = 21;
-  uint64 swap_used = 25;
-
-  uint64 net_speed_snt = 30;
-  uint64 net_speed_rcv = 31;
-  uint64 net_total_snt = 32;
-  uint64 net_total_rcv = 33;
-  uint64 net_total_packets_snt = 34;
-  uint64 net_total_packets_rcv = 35;
-
-  double load1 = 41;
-  double load5 = 42;
-  double load15 = 43;
 }

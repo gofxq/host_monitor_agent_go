@@ -10,9 +10,9 @@ import (
 )
 
 // GetHost 获取主机硬件信息
-func GetHost(c context.Context) *pb.HostInfo {
+func GetHost(c context.Context) *pb.TickHostInfo {
 
-	hostInfo := &pb.HostInfo{
+	hostInfo := &pb.TickHostInfo{
 		Header:    GetHostHeader(c),
 		CpuInfos:  GetHostCpus(c),
 		GpuInfos:  nil,
