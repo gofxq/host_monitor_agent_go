@@ -77,7 +77,7 @@ func ReportMonitorInfo(conn *grpc.ClientConn) {
 	t := time.Tick(interval)
 	for range t {
 		info := monitor.GetMonitor(context.TODO())
-		log.Printf("[monitor]  host_id:%s\tcpu_load:%3.2f%%\tmem_used:%s\tswap_used:%s\tnet_speed_snt:%s\tnet_speed_rcv:%s\tnet_total_snt:%s\tnet_total_rcv:%s",
+		log.Printf("[monitor]  id:%s\tcpu:%3.2f%%\tmem:%s\tswap:%s\tnet_s️:%s\tnet_r️:%s\tnet_st:%s\tnet_rt:%s",
 			info.HostId, info.CpuLoad, unitUint64(info.MemUsed), unitUint64(info.SwapUsed), unitUint64(info.NetSpeedSnt*8), unitUint64(info.NetSpeedRcv*8), unitUint64(info.NetTotalSnt), unitUint64(info.NetTotalRcv))
 		// 调用 Report 方法
 		err := clientInfo.Send(info)

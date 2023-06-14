@@ -23,6 +23,7 @@ service MonitorService {
 
 // 定时上报主机信息 freq: 1day
 message TickHostInfo {
+  string server_id = 99;
   Header header = 1;
   repeated CpuInfo cpu_infos = 2;
   repeated GpuInfo gpu_infos = 3;
@@ -32,6 +33,8 @@ message TickHostInfo {
 
 
 message TickMonitorInfo {
+  string server_id = 99;
+
   string host_id = 1; // Host ID of the system
   int64 timestamp = 2;
 

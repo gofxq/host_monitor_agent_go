@@ -48,6 +48,7 @@ func GetMonitor(c context.Context) *pb.TickMonitorInfo {
 	}
 
 	ret := &pb.TickMonitorInfo{
+		ServerId:           ServerID,
 		HostId:             hostID,
 		Timestamp:          time.Now().Unix(),
 		NetSpeedSnt:        NetSpeedSnt,
