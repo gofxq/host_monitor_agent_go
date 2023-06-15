@@ -1,28 +1,28 @@
 package main
 
 import (
-	"context"
+	"flag"
 	"fmt"
 	"github.com/gofxq/host_monitor_agent_go/monitor"
-	pb "github.com/gofxq/host_monitor_agent_go/protos/protos"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"log"
-	"math"
 	"time"
 )
 
-const (
-	target = "bigbro.gofxq.com:8008"
-	//target = "localhost:50051"
-	//target = "192.168.6.3:50051"
-)
-
 func main() {
+
+	// 后面三个参数分别是命令行参数名、默认值、帮助信息
+	flag.StringVar(&monitor.ServerID, "id", "test_server", "Report Server ID")
+	flag.StringVar(&monitor.GrpcServerAddr, "addr", "host-cd.gofxq.com:8009", "GRPC Server Addr")
+	// 解析命令行参数
+	flag.Parse()
+
+	fmt.Printf("report %s to %s. \n", monitor.ServerID, monitor.GrpcServerAddr)
+
 	// 设置一个连接到 gRPC 服务的连接
 	conn, err := grpc.Dial(
-		//"localhost:50051",
-		target,
+		monitor.GrpcServerAddr,
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
 		grpc.WithBlock(),
 	)
@@ -40,77 +40,9 @@ func main() {
 	}
 	log.Println(time.Now())
 
-	go ReportHostInfo(conn)
+	go monitor.ReportHostInfo(conn)
 
-	go ReportMonitorInfo(conn)
+	go monitor.ReportMonitorInfo(conn)
 
 	select {}
-
-}
-
-func ReportHostInfo(conn *grpc.ClientConn) {
-	c := pb.NewMonitorServiceClient(conn)
-	clientInfo, err := c.ReportHostInfoStream(context.Background())
-	if err != nil {
-		log.Fatalln("init ReportHostInfoStream failed")
-	}
-	t := time.Tick(time.Minute)
-	for i := range t {
-		hostInfo := monitor.GetHost(context.TODO())
-		log.Println(i, time.Now())
-		// 调用 Report 方法
-		err := clientInfo.Send(hostInfo)
-		if err != nil {
-			log.Printf("could not report: %v", err)
-			time.Sleep(time.Minute * 10)
-		}
-	}
-}
-
-func ReportMonitorInfo(conn *grpc.ClientConn) {
-	interval := time.Second //*3
-	c := pb.NewMonitorServiceClient(conn)
-	clientInfo, err := c.ReportMonitorStream(context.Background())
-	if err != nil {
-		log.Fatalln("init ReportHostInfoStream failed")
-	}
-	t := time.Tick(interval)
-	for range t {
-		info := monitor.GetMonitor(context.TODO())
-		log.Printf("[monitor]  id:%s\tcpu:%3.2f%%\tmem:%s\tswap:%s\tnet_s️:%s\tnet_r️:%s\tnet_st:%s\tnet_rt:%s",
-			info.HostId, info.CpuLoad, unitUint64(info.MemUsed), unitUint64(info.SwapUsed), unitUint64(info.NetSpeedSnt*8), unitUint64(info.NetSpeedRcv*8), unitUint64(info.NetTotalSnt), unitUint64(info.NetTotalRcv))
-		// 调用 Report 方法
-		err := clientInfo.Send(info)
-		if err != nil {
-			log.Printf("could not report: %v", err)
-			time.Sleep(interval * 3)
-			conn, err = grpc.Dial(
-				//"localhost:50051",
-				target,
-				grpc.WithTransportCredentials(insecure.NewCredentials()),
-				grpc.WithBlock(),
-			)
-			clientInfo, err = pb.NewMonitorServiceClient(conn).ReportMonitorStream(context.Background())
-		}
-	}
-
-}
-
-func unitUint64(n uint64) string {
-	return unitFloat(float64(n))
-}
-
-func unitFloat(number float64) string {
-	units := []string{"", "K", "M", "G"}
-	base := 1024.0
-
-	if number < base {
-		return fmt.Sprintf("%.0f", number)
-	}
-
-	exp := int(math.Log(number) / math.Log(base))
-	scaledNumber := number / math.Pow(base, float64(exp))
-	unit := units[exp]
-
-	return fmt.Sprintf("%.1f%s", scaledNumber, unit)
 }

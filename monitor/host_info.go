@@ -9,8 +9,6 @@ import (
 	"github.com/shirou/gopsutil/v3/mem"
 )
 
-var ServerID string = "test_server"
-
 // GetHost 获取主机硬件信息
 func GetHost(c context.Context) *pb.TickHostInfo {
 
