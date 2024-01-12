@@ -19,8 +19,6 @@ service MonitorService {
   rpc ReportHostInfoStream(stream TickHostInfo)returns(Receipt){}
 }
 
-
-
 // 定时上报主机信息 freq: 1day
 message TickHostInfo {
   string server_id = 99;

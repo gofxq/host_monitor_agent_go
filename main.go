@@ -14,7 +14,7 @@ func main() {
 
 	// 后面三个参数分别是命令行参数名、默认值、帮助信息
 	flag.StringVar(&monitor.ServerID, "id", "test_server", "Report Server ID")
-	flag.StringVar(&monitor.GrpcServerAddr, "addr", "host-cd.gofxq.com:8008", "GRPC Server Addr")
+	flag.StringVar(&monitor.GrpcServerAddr, "addr", "192.168.9.13:8008", "GRPC Server Addr")
 	// 解析命令行参数
 	flag.Parse()
 

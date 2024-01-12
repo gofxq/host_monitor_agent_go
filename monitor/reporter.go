@@ -44,10 +44,9 @@ func ReportMonitorInfo(conn *grpc.ClientConn) {
 	if err != nil {
 		log.Fatalln("init ReportHostInfoStream failed")
 	}
-	t := time.Tick(interval)
-	for range t {
+	for range time.Tick(interval) {
 		info := GetMonitor(context.TODO())
-		log.Printf("[monitor]  id:%s\tcpu:%3.2f%%\tmem:%s\tswap:%s\tnet_s️:%s\tnet_r️:%s\tnet_st:%s\tnet_rt:%s",
+		log.Printf("[monitor]  id:%s\tcpu:%3.2f%%\tmem:%s\tswap:%s\tnet_s:%s\tnet_r:%s\tnet_st:%s\tnet_rt:%s",
 			info.HostId, info.CpuLoad, utils.UnitUinUt64(info.MemUsed), utils.UnitUinUt64(info.SwapUsed), utils.UnitUinUt64(info.NetSpeedSnt*8), utils.UnitUinUt64(info.NetSpeedRcv*8), utils.UnitUinUt64(info.NetTotalSnt), utils.UnitUinUt64(info.NetTotalRcv))
 		// 调用 Report 方法
 		err := clientInfo.Send(info)
